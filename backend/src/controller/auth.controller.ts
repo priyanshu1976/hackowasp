@@ -15,6 +15,7 @@ export const signup = async (req: Request, res: Response) => {
     activity_level,
     goal,
     duration_weeks,
+    profilepicUrl
   } = req.body
 
   try {
@@ -29,7 +30,8 @@ export const signup = async (req: Request, res: Response) => {
       !gender ||
       !activity_level ||
       !goal ||
-      !duration_weeks
+      !duration_weeks ||
+      !profilepicUrl
     ) {
       return res.status(400).json({ message: 'All fields are required' })
     }
@@ -61,6 +63,7 @@ export const signup = async (req: Request, res: Response) => {
         gender,
         activity_level,
         goal,
+        profilepicUrl
       },
     })
 
