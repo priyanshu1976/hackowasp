@@ -1,0 +1,132 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  user_id         Int              @id @default(autoincrement())
+  username        String
+  email           String           @unique
+  password        String
+  age             Int
+  weight          Float
+  height          Float
+  gender          String
+  activity_level  String
+  goal            String           // bulk/cut/maintain
+
+  workoutPlans    WorkoutPlan[]
+  diets           Diet[]
+  progressLogs    ProgressLog[]
+  activityLogs    ActivityLog[]
+  goals           Goal[]
+}
+
+model WorkoutPlan {
+  plan_id         Int              @id @default(autoincrement())
+  user            User             @relation(fields: [user_id], references: [user_id])
+  user_id         Int
+  plan_name       String
+  goal            String
+  duration_weeks  Int
+  created_at      DateTime         @default(now())
+
+  workoutSessions WorkoutSession[]
+}
+
+model WorkoutSession {
+  session_id      Int              @id @default(autoincrement())
+  plan            WorkoutPlan      @relation(fields: [plan_id], references: [plan_id])
+  plan_id         Int
+  day_of_week     String
+  workout_type    String           // push/pull/legs/cardio
+  notes           String?
+
+  sessionExercises SessionExercise[]
+}
+
+model Exercise {
+  exercise_id     Int              @id @default(autoincrement())
+  name            String
+  type            String           // strength/cardio/flexibility
+  muscle_group    String
+  equipment_needed String
+
+  sessionExercises SessionExercise[]
+}
+
+model SessionExercise {
+  id              Int              @id @default(autoincrement())
+  session         WorkoutSession   @relation(fields: [session_id], references: [session_id])
+  session_id      Int
+  exercise        Exercise         @relation(fields: [exercise_id], references: [exercise_id])
+  exercise_id     Int
+  sets            Int
+  reps            Int
+  rest_time       Int
+  weight          Float
+}
+
+model Diet {
+  diet_id         Int              @id @default(autoincrement())
+  user            User             @relation(fields: [user_id], references: [user_id])
+  user_id         Int
+  diet_type       String           // bulking/cutting
+  calories        Int
+  protein         Float
+  carbs           Float
+  fats            Float
+  created_at      DateTime         @default(now())
+
+  meals           DietMeal[]
+}
+
+model DietMeal {
+  meal_id         Int              @id @default(autoincrement())
+  diet            Diet             @relation(fields: [diet_id], references: [diet_id])
+  diet_id         Int
+  meal_time       String           // breakfast, lunch, etc.
+  food_items      String
+  calories        Int
+  protein         Float
+  carbs           Float
+  fats            Float
+}
+
+model ProgressLog {
+  log_id          Int              @id @default(autoincrement())
+  user            User             @relation(fields: [user_id], references: [user_id])
+  user_id         Int
+  date            DateTime
+  weight          Float
+  body_fat_percent Float?
+  muscle_mass     Float?
+  notes           String?
+}
+
+model ActivityLog {
+  log_id          Int              @id @default(autoincrement())
+  user            User             @relation(fields: [user_id], references: [user_id])
+  user_id         Int
+  date            DateTime
+  steps           Int
+  active_minutes  Int
+  calories_burned Int
+  sleep_hours     Float
+}
+
+model Goal {
+  goal_id         Int              @id @default(autoincrement())
+  user            User             @relation(fields: [user_id], references: [user_id])
+  user_id         Int
+  goal_type       String           // e.g., "Gain 5kg muscle"
+  start_date      DateTime
+  target_date     DateTime
+  status          String           // pending/achieved/in-progress
+}
