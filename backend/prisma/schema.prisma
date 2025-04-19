@@ -19,7 +19,8 @@ model User {
   height          Float
   gender          String
   activity_level  String
-  goal            String           // bulk/cut/maintain
+  goal            String
+  profilepicUrl   String       // bulk/cut/maintain
 
   workoutPlans    WorkoutPlan[]
   diets           Diet[]
