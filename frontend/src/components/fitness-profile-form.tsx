@@ -301,7 +301,6 @@ export default function FitnessProfileForm() {
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
-          className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
           onClick={() => nav('/dashboard')}
         >
           Submit Fitness Profile
