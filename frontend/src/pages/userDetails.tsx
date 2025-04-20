@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, Check } from 'lucide-react'
 import FitnessProfileForm from '../components/fitness-profile-form'
 
 export default function ProfileSetupPage() {
+  
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
       {/* Header */}

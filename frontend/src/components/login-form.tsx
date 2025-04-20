@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 export default function LoginForm() {
+  const nav = useNavigate();
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -90,6 +92,7 @@ export default function LoginForm() {
       <button
         type="submit"
         className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+        onClick={() => nav('/form')}
       >
         Log In
       </button>
