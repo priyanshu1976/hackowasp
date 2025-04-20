@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/controller/auth.controller.ts","./src/lib/pg.dbl.ts","./src/lib/utils.ts","./src/routes/ai_route.ts","./src/routes/auth.routes.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/controller/ai.controller.ts","./src/controller/auth.controller.ts","./src/lib/gen_ai.ts","./src/lib/pg.dbl.ts","./src/lib/utils.ts","./src/routes/ai.route.ts","./src/routes/auth.routes.ts"],"version":"5.8.3"}

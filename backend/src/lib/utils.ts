@@ -18,3 +18,5 @@ export const generateToken = (email: string, res: Response) => {
 
   return token
 }
+
+
