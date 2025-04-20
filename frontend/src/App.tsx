@@ -7,6 +7,8 @@ import HomePage from './pages/HomePage'
 import { Routes, Route } from 'react-router-dom'
 import UserDetails from './pages/userDetails'
 import Avatar from './components/gymrat-plus-interface'
+import Dashboard from './pages/dashboard'
+import Game from './pages/dino_game'
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
       <Route path="/home" element={<HomePage />} />
       <Route path="/form" element={<UserDetails />} />
       <Route path="/avatar" element={<Avatar />} />
+      <Route path="/dashboard" element={<Dashboard  />} />
+      <Route path="/game" element={<Game />} />
     </Routes>
   )
 }
