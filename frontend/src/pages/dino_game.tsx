@@ -14,11 +14,13 @@ export default function ChromeDinoGame() {
     jumpVelocity: 0,
     nightMode: false
   });
+  const [cameraPermission, setCameraPermission] = useState('pending'); // 'pending', 'granted', 'denied'
 
   const requestRef = useRef();
   const lastTimeRef = useRef(0);
   const canvasRef = useRef(null);
   const gameContainerRef = useRef(null);
+  const videoRef = useRef(null);
   
   // Constants
   const GROUND_HEIGHT = 20;
@@ -61,6 +63,39 @@ export default function ChromeDinoGame() {
     });
     cancelAnimationFrame(requestRef.current);
   };
+  
+  // Initialize camera
+  useEffect(() => {
+    const initCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
+        });
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setCameraPermission('granted');
+        }
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        setCameraPermission('denied');
+      }
+    };
+    
+    initCamera();
+    
+    // Cleanup function to stop camera when component unmounts
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, []);
   
   // Handle keyboard input
   useEffect(() => {
@@ -439,57 +474,97 @@ export default function ChromeDinoGame() {
     );
   };
   
+  // Camera component
+  const renderCamera = () => {
+    return (
+      <div className="w-full h-full flex flex-col items-center relative">
+        {cameraPermission === 'pending' && (
+          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-700">
+            Accessing camera...
+          </div>
+        )}
+        
+        {cameraPermission === 'denied' && (
+          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-red-600">
+            Camera access denied. Please check your camera permissions.
+          </div>
+        )}
+        
+        <video 
+          ref={videoRef}
+          autoPlay 
+          playsInline
+          muted
+          className="w-full h-full object-cover rounded-md"
+        />
+      </div>
+    );
+  };
+  
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-4">
-      <div className="mb-4 flex justify-between w-full max-w-3xl">
-        <div className="text-xl font-mono">
-          Score: {Math.floor(gameState.score)}
+    <div className="flex flex-col items-center justify-center w-full h-full">
+      {/* Top section - Game */}
+      <div className="w-full h-1/2 p-4 flex flex-col items-center">
+        <div className="mb-4 flex justify-between w-full max-w-3xl">
+          <div className="text-xl font-mono">
+            Score: {Math.floor(gameState.score)}
+          </div>
+          <div className="text-xl font-mono">
+            HI: {Math.floor(gameState.highScore)}
+          </div>
         </div>
-        <div className="text-xl font-mono">
-          HI: {Math.floor(gameState.highScore)}
+        
+        <div 
+          ref={gameContainerRef}
+          className={`relative w-full max-w-3xl h-64 border-2 border-gray-400 overflow-hidden ${gameState.nightMode ? 'bg-gray-900' : 'bg-white'}`}
+        >
+          {renderStars()}
+          {renderSun()}
+          {renderMoon()}
+          {renderClouds()}
+          {renderGround()}
+          {renderDino()}
+          {renderObstacles()}
+          
+          {/* Game Over Screen */}
+          {gameState.gameOver && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-20">
+              <div className={`text-2xl font-bold mb-6 ${gameState.nightMode ? 'text-white' : 'text-gray-800'}`}>
+                GAME OVER
+              </div>
+              <button 
+                onClick={startGame}
+                className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 focus:outline-none"
+              >
+                Restart
+              </button>
+            </div>
+          )}
+          
+          {/* Start Screen */}
+          {!gameState.isRunning && !gameState.gameOver && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-20">
+              <div className={`text-2xl font-bold mb-6 ${gameState.nightMode ? 'text-white' : 'text-gray-800'}`}>
+                Press SPACE to start
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-4 text-center text-gray-600">
+          <div>Press SPACE or UP to jump</div>
+          <div>Press DOWN to duck</div>
         </div>
       </div>
       
-      <div 
-        ref={gameContainerRef}
-        className={`relative w-full max-w-3xl h-64 border-2 border-gray-400 overflow-hidden ${gameState.nightMode ? 'bg-gray-900' : 'bg-white'}`}
-      >
-        {renderStars()}
-        {renderSun()}
-        {renderMoon()}
-        {renderClouds()}
-        {renderGround()}
-        {renderDino()}
-        {renderObstacles()}
-        
-        {/* Game Over Screen */}
-        {gameState.gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-20">
-            <div className={`text-2xl font-bold mb-6 ${gameState.nightMode ? 'text-white' : 'text-gray-800'}`}>
-              GAME OVER
-            </div>
-            <button 
-              onClick={startGame}
-              className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 focus:outline-none"
-            >
-              Restart
-            </button>
-          </div>
-        )}
-        
-        {/* Start Screen */}
-        {!gameState.isRunning && !gameState.gameOver && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-20">
-            <div className={`text-2xl font-bold mb-6 ${gameState.nightMode ? 'text-white' : 'text-gray-800'}`}>
-              Press SPACE to start
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <div className="mt-4 text-center text-gray-600">
-        <div>Press SPACE or UP to jump</div>
-        <div>Press DOWN to duck</div>
+      {/* Bottom section - Camera */}
+      <div className="w-full h-1/2 p-4 flex flex-col items-center">
+        <div className="text-xl font-mono mb-2">
+          Camera Feed
+        </div>
+        <div className="w-full max-w-3xl h-64 border-2 border-gray-400 overflow-hidden rounded-md">
+          {renderCamera()}
+        </div>
       </div>
     </div>
   );
