@@ -1,6 +1,9 @@
 import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function HomePage() {
+  const navigate = useNavigate()
+
   return (
     <main className="min-h-screen bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-12 md:py-24">
@@ -15,13 +18,13 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button
-              onClick={() => navigateTo('login')}
+              onClick={() => navigate('/login')}
               className="px-8 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
             >
               Log In
             </button>
             <button
-              onClick={() => navigateTo('signup')}
+              onClick={() => navigate('/signup')}
               className="px-8 py-3 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg font-medium hover:bg-gray-700 transition-colors"
             >
               Sign Up
@@ -71,7 +74,7 @@ export default function HomePage() {
             Ready to start your fitness journey?
           </h2>
           <button
-            onClick={() => navigateTo('signup')}
+            onClick={() => navigate('/signup')}
             className="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
           >
             Get Started <ArrowRight className="ml-2 h-5 w-5" />

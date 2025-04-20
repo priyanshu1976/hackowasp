@@ -13,13 +13,12 @@ import Game from './pages/dino_game'
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/signup" element={<SignupPage />} />
-      <Route path="/home" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/form" element={<UserDetails />} />
       <Route path="/avatar" element={<Avatar />} />
-      <Route path="/dashboard" element={<Dashboard  />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/game" element={<Game />} />
     </Routes>
   )
