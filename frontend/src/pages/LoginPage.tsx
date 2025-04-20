@@ -2,8 +2,10 @@
 
 import { ChevronLeft } from 'lucide-react'
 import LoginForm from '../components/login-form'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginPage() {
+  const nav = useNavigate();
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
       {/* Header */}
@@ -46,7 +48,7 @@ export default function LoginPage() {
               Don't have an account?{' '}
               <button
                 onClick={() => {
-                  console.log('heelo')
+                  return nav('/signup')
                 }}
                 className="text-green-400 font-medium hover:text-green-300"
               >
