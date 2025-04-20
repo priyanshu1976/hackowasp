@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage'
 import HomePage from './pages/HomePage'
 import { Routes, Route } from 'react-router-dom'
 import UserDetails from './pages/userDetails'
+import Avatar from './components/gymrat-plus-interface'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/form" element={<UserDetails />} />
+      <Route path="/avatar" element={<Avatar />} />
     </Routes>
   )
 }
