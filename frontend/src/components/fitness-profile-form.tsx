@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 type FormData = {
   age: string
@@ -31,6 +32,8 @@ export default function FitnessProfileForm() {
     goal: '',
     duration: '',
   })
+
+  const nav = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -298,6 +301,8 @@ export default function FitnessProfileForm() {
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+          className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+          onClick={() => nav('/dashboard')}
         >
           Submit Fitness Profile
         </button>
