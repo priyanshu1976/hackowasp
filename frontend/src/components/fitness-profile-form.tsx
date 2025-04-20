@@ -1,34 +1,20 @@
 'use client'
 
-import type React from 'react'
-
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
-interface FormData {
+type FormData = {
   age: string
   weight: string
-  weightUnit: 'kg' | 'lb'
+  weightUnit: string
   heightFeet: string
   heightInches: string
   heightCm: string
-  heightUnit: 'ft/in' | 'cm'
-  gender: 'male' | 'female' | 'other' | ''
-  activityLevel:
-    | ''
-    | 'sedentary'
-    | 'light'
-    | 'moderate'
-    | 'active'
-    | 'very-active'
-  goal:
-    | ''
-    | 'lose-weight'
-    | 'maintain'
-    | 'build-muscle'
-    | 'improve-endurance'
-    | 'improve-strength'
-  duration: '' | '4-weeks' | '8-weeks' | '12-weeks' | '16-weeks' | 'ongoing'
+  heightUnit: string
+  gender: string
+  activityLevel: string
+  goal: string
+  duration: string
 }
 
 export default function FitnessProfileForm() {
@@ -46,37 +32,45 @@ export default function FitnessProfileForm() {
     duration: '',
   })
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleRadioChange = (name: string, value: string) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
+  const handleRadioChange = (field: keyof FormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Fitness profile submitted:', formData)
-    // Handle form submission logic here
+
+    try {
+      const res = await fetch('/api/genai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to submit form')
+      }
+
+      const data = await res.json()
+      console.log('Success:', data)
+      alert('Form submitted successfully!')
+    } catch (err) {
+      console.error('Error submitting form:', err)
+      alert('Something went wrong. Please try again.')
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 text-white">
       {/* Age */}
       <div>
-        <label
-          htmlFor="age"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-1">
           Age
         </label>
         <input
@@ -87,7 +81,7 @@ export default function FitnessProfileForm() {
           max="100"
           value={formData.age}
           onChange={handleChange}
-          className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400"
           placeholder="Enter your age"
           required
         />
@@ -95,10 +89,7 @@ export default function FitnessProfileForm() {
 
       {/* Weight */}
       <div>
-        <label
-          htmlFor="weight"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor="weight" className="block text-sm font-medium text-gray-300 mb-1">
           Weight
         </label>
         <div className="flex">
@@ -110,7 +101,7 @@ export default function FitnessProfileForm() {
             max="300"
             value={formData.weight}
             onChange={handleChange}
-            className="flex-1 px-4 py-3 rounded-l-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="flex-1 px-4 py-3 rounded-l-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400"
             placeholder="Enter your weight"
             required
           />
@@ -119,24 +110,19 @@ export default function FitnessProfileForm() {
               name="weightUnit"
               value={formData.weightUnit}
               onChange={handleChange}
-              className="h-full px-4 py-3 rounded-r-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none pr-8"
+              className="h-full px-4 py-3 rounded-r-lg border border-gray-700 bg-gray-800 text-white appearance-none pr-8"
             >
               <option value="kg">kg</option>
               <option value="lb">lb</option>
             </select>
-            <ChevronDown
-              size={16}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
-            />
+            <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Height */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Height
-        </label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Height</label>
         <div className="flex items-center mb-2">
           <div className="flex items-center mr-4">
             <input
@@ -146,9 +132,9 @@ export default function FitnessProfileForm() {
               value="cm"
               checked={formData.heightUnit === 'cm'}
               onChange={() => handleRadioChange('heightUnit', 'cm')}
-              className="h-4 w-4 text-green-500 border-gray-300 focus:ring-green-500"
+              className="h-4 w-4 text-green-500 border-gray-600"
             />
-            <label htmlFor="height-cm" className="ml-2 text-sm text-gray-700">
+            <label htmlFor="height-cm" className="ml-2 text-sm text-gray-300">
               Centimeters
             </label>
           </div>
@@ -160,9 +146,9 @@ export default function FitnessProfileForm() {
               value="ft/in"
               checked={formData.heightUnit === 'ft/in'}
               onChange={() => handleRadioChange('heightUnit', 'ft/in')}
-              className="h-4 w-4 text-green-500 border-gray-300 focus:ring-green-500"
+              className="h-4 w-4 text-green-500 border-gray-600"
             />
-            <label htmlFor="height-ft" className="ml-2 text-sm text-gray-700">
+            <label htmlFor="height-ft" className="ml-2 text-sm text-gray-300">
               Feet/Inches
             </label>
           </div>
@@ -177,92 +163,64 @@ export default function FitnessProfileForm() {
             max="250"
             value={formData.heightCm}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400"
             placeholder="Enter your height in cm"
             required
           />
         ) : (
           <div className="flex gap-2">
-            <div className="flex-1">
-              <input
-                type="number"
-                id="heightFeet"
-                name="heightFeet"
-                min="3"
-                max="8"
-                value={formData.heightFeet}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Feet"
-                required
-              />
-            </div>
-            <div className="flex-1">
-              <input
-                type="number"
-                id="heightInches"
-                name="heightInches"
-                min="0"
-                max="11"
-                value={formData.heightInches}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Inches"
-                required
-              />
-            </div>
+            <input
+              type="number"
+              id="heightFeet"
+              name="heightFeet"
+              min="3"
+              max="8"
+              value={formData.heightFeet}
+              onChange={handleChange}
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400"
+              placeholder="Feet"
+              required
+            />
+            <input
+              type="number"
+              id="heightInches"
+              name="heightInches"
+              min="0"
+              max="11"
+              value={formData.heightInches}
+              onChange={handleChange}
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400"
+              placeholder="Inches"
+              required
+            />
           </div>
         )}
       </div>
 
       {/* Gender */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Gender
-        </label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Gender</label>
         <div className="grid grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => handleRadioChange('gender', 'male')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.gender === 'male'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Male
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('gender', 'female')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.gender === 'female'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Female
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('gender', 'other')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.gender === 'other'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Other
-          </button>
+          {['male', 'female', 'other'].map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => handleRadioChange('gender', option)}
+              className={`px-4 py-3 rounded-lg border ${
+                formData.gender === option
+                  ? 'border-green-500 bg-green-800 text-green-300'
+                  : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700'
+              }`}
+            >
+              {option.charAt(0).toUpperCase() + option.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Activity Level */}
       <div>
-        <label
-          htmlFor="activityLevel"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label htmlFor="activityLevel" className="block text-sm font-medium text-gray-300 mb-1">
           Activity Level
         </label>
         <div className="relative">
@@ -271,162 +229,77 @@ export default function FitnessProfileForm() {
             name="activityLevel"
             value={formData.activityLevel}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+            className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white"
             required
           >
             <option value="" disabled>
               Select your activity level
             </option>
             <option value="sedentary">Sedentary (little or no exercise)</option>
-            <option value="light">Light (exercise 1-3 days/week)</option>
-            <option value="moderate">Moderate (exercise 3-5 days/week)</option>
-            <option value="active">Active (exercise 6-7 days/week)</option>
-            <option value="very-active">
-              Very Active (intense exercise daily)
-            </option>
+            <option value="light">Light (1-3 days/week)</option>
+            <option value="moderate">Moderate (3-5 days/week)</option>
+            <option value="active">Active (6-7 days/week)</option>
+            <option value="very-active">Very Active (daily intense exercise)</option>
           </select>
-          <ChevronDown
-            size={16}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
-          />
+          <ChevronDown size={16} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
       </div>
 
-      {/* Fitness Goal */}
+      {/* Goal */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Fitness Goal
-        </label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Fitness Goal</label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => handleRadioChange('goal', 'lose-weight')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.goal === 'lose-weight'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Lose Weight
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('goal', 'maintain')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.goal === 'maintain'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Maintain Weight
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('goal', 'build-muscle')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.goal === 'build-muscle'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Build Muscle
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('goal', 'improve-endurance')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.goal === 'improve-endurance'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Improve Endurance
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('goal', 'improve-strength')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.goal === 'improve-strength'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Improve Strength
-          </button>
+          {[
+            'lose-weight',
+            'maintain',
+            'build-muscle',
+            'improve-endurance',
+            'improve-strength',
+          ].map((goal) => (
+            <button
+              key={goal}
+              type="button"
+              onClick={() => handleRadioChange('goal', goal)}
+              className={`px-4 py-3 rounded-lg border ${
+                formData.goal === goal
+                  ? 'border-green-500 bg-green-800 text-green-300'
+                  : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700'
+              }`}
+            >
+              {goal.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Program Duration */}
+      {/* Duration */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Program Duration
-        </label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">Program Duration</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button
-            type="button"
-            onClick={() => handleRadioChange('duration', '4-weeks')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.duration === '4-weeks'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            4 Weeks
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('duration', '8-weeks')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.duration === '8-weeks'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            8 Weeks
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('duration', '12-weeks')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.duration === '12-weeks'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            12 Weeks
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('duration', '16-weeks')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.duration === '16-weeks'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            16 Weeks
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRadioChange('duration', 'ongoing')}
-            className={`px-4 py-3 rounded-lg border ${
-              formData.duration === 'ongoing'
-                ? 'border-green-500 bg-green-50 text-green-700'
-                : 'border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            Ongoing
-          </button>
+          {['4-weeks', '8-weeks', '12-weeks', '16-weeks', 'ongoing'].map((duration) => (
+            <button
+              key={duration}
+              type="button"
+              onClick={() => handleRadioChange('duration', duration)}
+              className={`px-4 py-3 rounded-lg border ${
+                formData.duration === duration
+                  ? 'border-green-500 bg-green-800 text-green-300'
+                  : 'border-gray-700 bg-gray-800 text-white hover:bg-gray-700'
+              }`}
+            >
+              {duration === 'ongoing' ? 'Ongoing' : duration.replace('-', ' ')}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Submit Button */}
+      {/* Submit */}
       <div className="pt-4">
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-colors"
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
         >
-          Create My Fitness Profile
+          Submit Fitness Profile
         </button>
       </div>
     </form>
