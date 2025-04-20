@@ -48,7 +48,7 @@ export default function FitnessProfileForm() {
     e.preventDefault()
 
     try {
-      const res = await fetch('/api/genai', {
+      const res = await fetch('/api/gemini', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
